@@ -1,0 +1,13 @@
+# redis-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: redis-storage
+  resources:
+    requests:
+      storage: 20Gi

@@ -1,0 +1,17 @@
+# redis-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+    - name: redis
+      image: redis:7-alpine
+      command: ["redis-server", "--appendonly", "yes", "--save", "900", "1"]
+      volumeMounts:
+        - name: redis-data
+          mountPath: /data
+  volumes:
+    - name: redis-data
+      persistentVolumeClaim:
+        claimName: redis-data
