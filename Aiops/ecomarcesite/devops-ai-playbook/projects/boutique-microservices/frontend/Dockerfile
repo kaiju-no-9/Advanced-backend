@@ -1,22 +1,30 @@
-# Frontend Dockerfile
-FROM node:20-alpine
+# Stage 1: Build the React application
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install --production=false
 
-# Copy source code
+# Copy source code and build
 COPY . .
+
+# Set environment variable for build time
+ENV REACT_APP_API_URL=/api
 
 # Build the app
 RUN npm run build
 
-# Install serve globally
-RUN npm install -g serve
+# Stage 2: Serve the build files using Nginx
+FROM nginx:alpine
 
-EXPOSE 3000
+# Copy the built files from the build stage to Nginx html directory
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Use serve to host the static files
-CMD ["serve", "-s", "build", "-l", "3000", "--single"]
+# Copy the Nginx configuration file
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
